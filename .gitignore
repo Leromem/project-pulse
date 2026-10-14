@@ -1,0 +1,15 @@
+# Built by install.ps1
+dist/
+
+# Dependencies (none today, but keep them out if added)
+node_modules/
+
+# Left behind if a test run is interrupted
+test/.fixtures-*/
+
+# Local design-process files (previews, detector cache)
+.impeccable/
+
+# Logs and local runtime data, if ever pointed inside the repo
+*.log
+data/

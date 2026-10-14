@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Project Pulse</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<div id="banner" class="banner" role="status" hidden></div>
+<header class="top" id="top">
+  <div class="bar">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><path d="M4.5 18H10l2.2-3.5 3.3 9.5 3.6-17 2.6 11H27.5"/></svg>
+    <div class="ident">
+      <span class="brand">Project Pulse <span id="conn" class="conn" hidden></span></span>
+      <div class="switch-wrap">
+        <button id="switcher" class="switcher" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="switchMenu">
+          <span id="liveDot" class="live-dot" title="Claude Code is active in this project" hidden></span>
+          <span id="projName" class="name">Loading…</span>
+          <span data-icon="chev"></span>
+        </button>
+        <span id="projMeta" class="proj-meta"></span>
+        <div id="switchMenu" class="menu" role="menu" aria-label="Projects" hidden></div>
+      </div>
+    </div>
+    <button id="reviewNow" class="btn primary" type="button"><span data-icon="pulse"></span><span>Review now</span></button>
+    <button id="gear" class="icon-btn" type="button" aria-label="Settings" title="Settings" aria-pressed="false"><span data-icon="sliders"></span></button>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button class="tab" role="tab" type="button" data-view="pulse">Pulse</button>
+    <button class="tab" role="tab" type="button" data-view="plan">Plan <span id="planCount" class="count" hidden></span></button>
+    <button class="tab" role="tab" type="button" data-view="history">History</button>
+    <div class="trace" aria-hidden="true"><i></i></div>
+  </nav>
+</header>
+<main id="main"></main>
+<div id="dialog"></div>
+<div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+</body>
+</html>

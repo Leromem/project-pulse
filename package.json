@@ -1,0 +1,13 @@
+{
+  "name": "project-pulse",
+  "version": "1.0.0",
+  "description": "Local development adviser for Claude Code and Claude Desktop: reviews finished sessions and suggests next steps in its own window.",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node service/server.mjs",
+    "open": "node service/server.mjs --open",
+    "test": "node --test \"test/*.test.mjs\""
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "project-pulse-local",
+  "owner": { "name": "Project Pulse" },
+  "description": "Local marketplace for the Project Pulse development adviser mod.",
+  "plugins": [{ "name": "project-pulse", "source": "./" }]
+}

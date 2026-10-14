@@ -1,0 +1,6 @@
+{
+  "name": "project-pulse",
+  "version": "1.0.0",
+  "description": "Project Pulse: after each finished coding task, reviews what you built (benefits, drawbacks, status, next steps) and shows it in its own window.",
+  "author": { "name": "Project Pulse" }
+}

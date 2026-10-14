@@ -1,0 +1,30 @@
+{
+  "manifest_version": "0.2",
+  "name": "project-pulse",
+  "display_name": "Project Pulse",
+  "version": "1.0.0",
+  "description": "Your local development adviser: request a Pulse review, read a project's history, and manage its recommendations.",
+  "long_description": "Project Pulse keeps a review of each development session per project (what you built, benefits, drawbacks, status and up to three next steps) and shows it in its own window. In Claude Desktop, ask Claude for a Pulse review and it will use these tools. Requires Project Pulse to be installed on this PC (Install.cmd).",
+  "author": { "name": "Project Pulse (local)" },
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.mjs"]
+    }
+  },
+  "tools": [
+    { "name": "pulse_list_projects", "description": "List the projects Project Pulse tracks." },
+    { "name": "pulse_project_history", "description": "Read a project's latest review, open concerns and next steps." },
+    { "name": "pulse_start_review", "description": "Start a manual Pulse review of the work discussed in this conversation." },
+    { "name": "pulse_submit_review", "description": "Save the review so it shows in the Project Pulse window." },
+    { "name": "pulse_update_recommendation", "description": "Plan, dismiss, restore or complete a recommendation when you ask." },
+    { "name": "pulse_open_window", "description": "Open the Project Pulse window." }
+  ],
+  "keywords": ["development", "review", "planning", "local"],
+  "compatibility": {
+    "platforms": ["win32"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}
