@@ -9,11 +9,12 @@ const MARKERS = [
   'package.json', 'pyproject.toml', 'requirements.txt', 'Cargo.toml', 'go.mod', 'composer.json',
   'pubspec.yaml', 'deno.json', 'Gemfile', 'pom.xml', 'build.gradle', 'CLAUDE.md',
 ]
+// App settings and caches, never project work: AppData on Windows, Library and .cache elsewhere.
 const IGNORED = [
   path.join(os.homedir(), '.claude'),
   HOME,
   os.tmpdir(),
-  path.join(os.homedir(), 'AppData'),
+  ...(process.platform === 'win32' ? ['AppData'] : ['Library', '.cache']).map(dir => path.join(os.homedir(), dir)),
 ].map(key)
 
 function key(p) {

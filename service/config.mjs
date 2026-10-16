@@ -17,6 +17,19 @@ export const APP_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 export const UI_DIR = path.join(APP_DIR, 'ui')
 export const PORT = Number(process.env.PROJECT_PULSE_PORT || 47821)
 
+// The full path of a program on PATH, or null (macOS and Linux lookups: browsers, xprintidle, claude).
+export function onPath(name, env = process.env) {
+  for (const dir of (env.PATH || '').split(path.delimiter)) {
+    if (!dir) continue
+    const file = path.join(dir, name)
+    try {
+      fs.accessSync(file, fs.constants.X_OK)
+      if (fs.statSync(file).isFile()) return file
+    } catch {}
+  }
+  return null
+}
+
 export function ensureDirs() {
   for (const dir of [DATA_DIR, LOG_DIR]) fs.mkdirSync(dir, { recursive: true })
 }

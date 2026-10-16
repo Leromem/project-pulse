@@ -542,7 +542,7 @@ async function forgetProject() {
   } catch (e) { toast(e.message); }
 }
 async function openLog() {
-  try { await api('POST', '/api/diagnostics/open-log', {}); toast('Opened the log folder in File Explorer.'); } catch (e) { toast(e.message); }
+  try { await api('POST', '/api/diagnostics/open-log', {}); toast('Opened the log folder.'); } catch (e) { toast(e.message); }
 }
 
 /* ---------- toasts ---------- */
@@ -962,7 +962,7 @@ function settingsView() {
       swRow('autoOpenWindow', 'Open the window automatically', 'Show this window when a new review is ready.'),
       row('Next steps per review', 'The most suggestions a review can make.', seg('Next steps per review', g.maxRecommendations, [[1, '1'], [2, '2'], [3, '3']], (v) => setGlobal({ maxRecommendations: v }), 'g:max')),
       row('Explanation detail', 'How much reviews explain.', seg('Explanation detail', g.detail, Object.entries(DETAIL), (v) => setGlobal({ detail: v }), 'g:detail')),
-      swRow('notifications', 'Notifications', 'A small Windows notification when a review is ready.'),
+      swRow('notifications', 'Notifications', 'A small desktop notification when a review is ready.'),
       swRow('animations', 'Animations', 'Gentle motion for new reviews and changes.'),
       row('Theme', null, seg('Theme', g.theme || 'system', [['system', 'System'], ['dark', 'Dark'], ['light', 'Light']], (v) => setGlobal({ theme: v }), 'g:theme')),
       swRow('openWhileTyping', "Open the window even while I'm typing", 'When off, Pulse waits until you pause typing so it never takes over your keyboard.'),

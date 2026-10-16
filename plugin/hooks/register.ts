@@ -38,22 +38,25 @@ export const register: Register = on => {
     let lastStartAttempt = 0
     let reviewing = false
     let beating = false
+    // Windows sets OS=Windows_NT and USERPROFILE; macOS and Linux set neither.
+    const windows = (await $.env.get('OS')) === 'Windows_NT' || !!(await $.env.get('USERPROFILE'))
+    const join = (...parts: string[]): string => parts.join(windows ? '\\' : '/')
 
     const home = async (): Promise<string> => {
       const custom = await $.env.get('PROJECT_PULSE_HOME')
       if (custom) return custom
       const profile = (await $.env.get('USERPROFILE')) || (await $.env.get('HOME')) || ''
-      return `${profile}\\.project-pulse`
+      return join(profile, '.project-pulse')
     }
 
     const connection = async (): Promise<Conn | null> => {
       if (conn) return conn
       try {
         const dir = await home()
-        const token = (await $.fs.read(`${dir}\\data\\token`)).trim()
+        const token = (await $.fs.read(join(dir, 'data', 'token'))).trim()
         let port = 47821
         try {
-          port = Number(JSON.parse(await $.fs.read(`${dir}\\data\\service.json`)).port) || port
+          port = Number(JSON.parse(await $.fs.read(join(dir, 'data', 'service.json'))).port) || port
         } catch {}
         conn = { base: `http://127.0.0.1:${port}`, token }
         return conn
@@ -87,8 +90,10 @@ export const register: Register = on => {
       const at = await $.clock.now()
       if (at - lastStartAttempt < 60_000) return
       lastStartAttempt = at
+      const bin = join(await home(), 'app', 'bin')
+      const launcher = windows ? ['wscript.exe', '//B', '//Nologo', join(bin, 'start-service.vbs')] : ['/bin/sh', join(bin, 'start-service.sh')]
       try {
-        await $.process.run(['wscript.exe', '//B', '//Nologo', `${await home()}\\app\\bin\\start-service.vbs`], { timeoutMs: 15_000 })
+        await $.process.run(launcher, { timeoutMs: 15_000 })
         conn = null
       } catch (err) {
         $.ui.log(`Project Pulse could not start its service: ${String(err)}`, { to: 'debug' })

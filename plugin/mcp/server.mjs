@@ -31,9 +31,12 @@ async function healthy() {
 
 async function ensureService() {
   if (await healthy()) return
-  const vbs = path.join(HOME, 'app', 'bin', 'start-service.vbs')
-  if (!fs.existsSync(vbs)) throw new Error('Project Pulse is not installed (run Install.cmd in the Project Pulse folder).')
-  spawn('wscript.exe', ['//B', '//Nologo', vbs], { detached: true, stdio: 'ignore', windowsHide: true }).unref()
+  // The installed launcher that starts the service with no window: a .vbs on Windows, a shell script elsewhere.
+  const win = process.platform === 'win32'
+  const script = path.join(HOME, 'app', 'bin', win ? 'start-service.vbs' : 'start-service.sh')
+  if (!fs.existsSync(script)) throw new Error(`Project Pulse is not installed (run ${win ? 'Install.cmd' : 'install.sh'} in the Project Pulse folder).`)
+  const [cmd, args] = win ? ['wscript.exe', ['//B', '//Nologo', script]] : ['/bin/sh', [script]]
+  spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true }).on('error', () => {}).unref()
   for (let i = 0; i < 20; i++) {
     await new Promise(r => setTimeout(r, 500))
     if (await healthy()) return
@@ -74,7 +77,7 @@ async function findProject(args) {
 
 const PROJECT_ARGS = {
   project_id: { type: 'string', description: 'Pulse project id (from pulse_list_projects).' },
-  project_path: { type: 'string', description: 'Absolute folder path of the project, e.g. D:\\Code\\MyApp.' },
+  project_path: { type: 'string', description: 'Absolute folder path of the project, e.g. D:\\Code\\MyApp or /Users/me/code/my-app.' },
   project_name: { type: 'string', description: 'Project folder name, if Pulse already knows it.' },
 }
 

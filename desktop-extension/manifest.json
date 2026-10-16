@@ -4,7 +4,7 @@
   "display_name": "Project Pulse",
   "version": "1.0.0",
   "description": "Your local development adviser: request a Pulse review, read a project's history, and manage its recommendations.",
-  "long_description": "Project Pulse keeps a review of each development session per project (what you built, benefits, drawbacks, status and up to three next steps) and shows it in its own window. In Claude Desktop, ask Claude for a Pulse review and it will use these tools. Requires Project Pulse to be installed on this PC (Install.cmd).",
+  "long_description": "Project Pulse keeps a review of each development session per project (what you built, benefits, drawbacks, status and up to three next steps) and shows it in its own window. In Claude Desktop, ask Claude for a Pulse review and it will use these tools. Requires Project Pulse to be installed on this computer (Install.cmd on Windows, install.sh on macOS and Linux).",
   "author": { "name": "Project Pulse (local)" },
   "server": {
     "type": "node",
@@ -24,7 +24,7 @@
   ],
   "keywords": ["development", "review", "planning", "local"],
   "compatibility": {
-    "platforms": ["win32"],
+    "platforms": ["win32", "darwin", "linux"],
     "runtimes": { "node": ">=18.0.0" }
   }
 }

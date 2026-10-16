@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 // Registers (or removes) the Project Pulse MCP server with other AI coding tools on this PC:
-// Codex CLI, Cursor, Gemini CLI, Windsurf and VS Code (GitHub Copilot). Each config file is
-// backed up before it changes; a file that cannot be parsed safely is skipped, never rewritten.
+// Codex CLI, Cursor, Gemini CLI, Windsurf and VS Code (GitHub Copilot), on Windows, macOS and Linux.
+// Each config file is backed up before it changes; a file that cannot be parsed safely is skipped,
+// never rewritten.
 //
-//   node register-agents.mjs --app <app dir> --node <node.exe> [--backup <dir>]
-//                            [--remove] [--instructions] [--only codex,cursor] [--home <dir>]
+//   node register-agents.mjs --app <app dir> --node <node path> [--backup <dir>]
+//                            [--remove] [--instructions] [--only codex,cursor]
+//                            [--home <dir>] [--platform win32|darwin|linux]   (the last two for tests)
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -17,7 +19,13 @@ const opt = name => {
 const flag = name => args.includes(`--${name}`)
 
 const HOME = opt('home') || os.homedir()
-const APPDATA = opt('home') ? path.join(HOME, 'AppData', 'Roaming') : process.env.APPDATA || path.join(HOME, 'AppData', 'Roaming')
+const PLATFORM = opt('platform') || process.platform
+// Where apps keep per-user settings (VS Code's among them). A test's --home stands in for all of it.
+const realHome = !opt('home')
+const CONFIG_DIR =
+  PLATFORM === 'win32' ? (realHome && process.env.APPDATA) || path.join(HOME, 'AppData', 'Roaming')
+  : PLATFORM === 'darwin' ? path.join(HOME, 'Library', 'Application Support')
+  : (realHome && process.env.XDG_CONFIG_HOME) || path.join(HOME, '.config')
 const APP = path.resolve(opt('app') || path.join(HOME, '.project-pulse', 'app'))
 const NODE = opt('node') || process.execPath
 const SERVER = path.join(APP, 'plugin', 'mcp', 'server.mjs')
@@ -126,9 +134,10 @@ if (want('windsurf') && exists(path.join(HOME, '.codeium', 'windsurf'))) {
   jsonClient('Windsurf', path.join(HOME, '.codeium', 'windsurf', 'mcp_config.json'), 'mcpServers', stdio)
 }
 
-// ---- VS Code / GitHub Copilot (%APPDATA%\Code\User\mcp.json)
-if (want('vscode') && exists(path.join(APPDATA, 'Code', 'User'))) {
-  jsonClient('VS Code (Copilot)', path.join(APPDATA, 'Code', 'User', 'mcp.json'), 'servers', { type: 'stdio', ...stdio })
+// ---- VS Code / GitHub Copilot (Code/User/mcp.json under %APPDATA% on Windows,
+//      ~/Library/Application Support on macOS, ~/.config on Linux)
+if (want('vscode') && exists(path.join(CONFIG_DIR, 'Code', 'User'))) {
+  jsonClient('VS Code (Copilot)', path.join(CONFIG_DIR, 'Code', 'User', 'mcp.json'), 'servers', { type: 'stdio', ...stdio })
 }
 
 for (const line of done) console.log(`    ${line}`)

@@ -119,7 +119,7 @@ type Settings = {
 | `PUT /api/projects/:id/settings` | `{ overrides }` (null value = inherit) | `{ effective, overrides }` |
 | `DELETE /api/projects/:id` | — | `{ ok }` forget a project and its history |
 | `POST /api/window/state` | `{ visible, focused, bounds: { x, y, w, h }, projectId }` (token in query) | `{ ok }` |
-| `POST /api/diagnostics/open-log` | `{}` | `{ ok }` opens the log folder in Explorer |
+| `POST /api/diagnostics/open-log` | `{}` | `{ ok }` opens the log folder in the file manager (Explorer, Finder or the Linux default) |
 
 Nothing here runs code from recommendation text. "Discuss in Claude" only places text in a prompt box; you send it.
 

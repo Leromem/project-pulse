@@ -40,7 +40,7 @@ Every tool shares one window and one memory. In Claude Code, reviews happen auto
 | **Gemini CLI** | When you ask, or automatically with the instruction snippet | Done by the installer if Gemini CLI is on your PC |
 | **Windsurf** | When you ask | Done by the installer if Windsurf is on your PC |
 | **VS Code (GitHub Copilot agent mode)** | When you ask | Done by the installer if VS Code is on your PC |
-| **Claude Desktop** | When you ask | Double-click `dist\ProjectPulse.mcpb` |
+| **Claude Desktop** | When you ask | Open `dist/ProjectPulse.mcpb` |
 | **Any other MCP client** | When you ask | [Add the server by hand](#any-ai-tool-by-hand) |
 
 All of them share the same Pulse window, project memory and plan. "When you ask" means you say *"give me a Pulse review"* and the assistant writes it with the Pulse tools.
@@ -76,11 +76,15 @@ flowchart LR
    - In Claude Code, a small mod notices on its own. "Done" means Claude finished a reply that changed files, and you then stayed quiet for about 90 seconds. A successful `git commit` counts sooner, and so does ending the session.
    - In other tools, the assistant calls Pulse's tools when you ask, or by itself when you add the instruction snippet.
 2. **The review comes from the conversation itself,** so the reviewer saw exactly what happened. It uses the sign-in your assistant already has. Pulse never needs its own API key.
-3. **A local service saves it and shows it.** The service runs on `127.0.0.1` and stores everything in SQLite. It opens the Pulse window, a small Edge app window.
+3. **A local service saves it and shows it.** The service runs on `127.0.0.1` and stores everything in SQLite. It opens the Pulse window, a small Edge or Chrome app window.
 
 ---
 
-## Install (Windows 10/11)
+## Install
+
+Pulse is built and tested on **Windows 10/11**. **macOS and Linux** support is new: it is covered by unit tests and a simulated install, but nobody has run it on a real Mac or Linux desktop yet ([details](#macos-and-linux)).
+
+### Windows 10/11
 
 **You need:**
 - [Node.js](https://nodejs.org) 22.5 or newer
@@ -109,6 +113,36 @@ That's it. Pulse is now on for **every** project, current and future, in every A
 
 **Optional, so Pulse can finish reviews after you close Claude:** run `claude auth login` once in a terminal.
 
+### macOS and Linux
+
+> **Not yet tested on real hardware.** Every macOS and Linux code path has unit tests, the shell scripts pass ShellCheck, and the install and uninstall were run start to finish in a simulated Linux environment. Nobody has run Pulse on a real Mac or Linux desktop yet. If you try it, please [open an issue](https://github.com/Leromem/project-pulse/issues) and say what worked and what didn't.
+
+**You need:**
+- [Node.js](https://nodejs.org) 22.5 or newer
+- At least one AI coding tool (as on Windows, above)
+- Microsoft Edge, Google Chrome or Chromium for the Pulse window. Without one, Pulse opens in your default browser.
+- On Linux, optionally: `xprintidle` so the window waits until you stop typing (X11 only; without it the window opens right away), `notify-send` for notifications, and `zip` or `python3` to build the Claude Desktop extension.
+
+```bash
+git clone https://github.com/Leromem/project-pulse.git
+```
+
+```bash
+cd project-pulse
+```
+
+```bash
+sh install.sh
+```
+
+It does the same as the Windows installer. The differences:
+- **Start at login:** a LaunchAgent on macOS (`~/Library/LaunchAgents/com.project-pulse.service.plist`), an autostart entry on Linux (`~/.config/autostart/project-pulse.desktop`).
+- **Opening the window:** `/pulse open` in Claude Code, or `sh ~/.project-pulse/app/bin/open-window.sh`. On Linux there's also a **Project Pulse** entry in your app menu.
+- **Notifications:** macOS shows them through `osascript` (they may appear under Script Editor in System Settings > Notifications). Linux uses `notify-send`.
+- **Claude Desktop (macOS):** open `~/.project-pulse/app/dist/ProjectPulse.mcpb`.
+
+Options: `--agent-instructions`, `--no-agents`, `--skip-claude`, `--no-start`.
+
 ### Codex, Cursor, Gemini CLI, Windsurf, VS Code
 
 **You don't need to do anything extra.** The installer finds these tools and adds the Pulse tools to each one it finds, backing up every config first. Restart the tool afterwards. In any of them, ask:
@@ -117,7 +151,7 @@ That's it. Pulse is now on for **every** project, current and future, in every A
 
 The assistant reviews what it just did and saves the review to your Pulse window.
 
-**Want reviews without asking?** Run the installer with `-AgentInstructions`:
+**Want reviews without asking?** Run the installer with `-AgentInstructions` (`--agent-instructions` on macOS and Linux):
 
 ```bash
 powershell -ExecutionPolicy Bypass -File install.ps1 -AgentInstructions
@@ -125,11 +159,11 @@ powershell -ExecutionPolicy Bypass -File install.ps1 -AgentInstructions
 
 That adds a short note to `~/.codex/AGENTS.md` and `~/.gemini/GEMINI.md`, telling the assistant to write a Pulse review whenever it finishes a task that changed files. For Cursor, Windsurf or Copilot, paste [`integrations/agent-instructions.md`](integrations/agent-instructions.md) into that tool's rules or custom instructions.
 
-Don't want Pulse in your other tools? Install with `-NoAgents`.
+Don't want Pulse in your other tools? Install with `-NoAgents` (`--no-agents` on macOS and Linux).
 
 ### Any AI tool, by hand
 
-Pulse's tools are a standard MCP server. After running the installer, point any MCP client at it. Replace `<you>` with your Windows user name.
+Pulse's tools are a standard MCP server. After running the installer, point any MCP client at it. Replace `<you>` with your user name. The examples are for Windows; on macOS and Linux use the path `which node` prints and the server path written out in full, like `/Users/<you>/.project-pulse/app/plugin/mcp/server.mjs` (`/home/<you>/...` on Linux).
 
 <details>
 <summary><b>Codex CLI</b>: <code>~/.codex/config.toml</code></summary>
@@ -157,7 +191,7 @@ args = ["C:\\Users\\<you>\\.project-pulse\\app\\plugin\\mcp\\server.mjs"]
 </details>
 
 <details>
-<summary><b>VS Code / GitHub Copilot</b>: <code>%APPDATA%\Code\User\mcp.json</code></summary>
+<summary><b>VS Code / GitHub Copilot</b>: <code>%APPDATA%\Code\User\mcp.json</code> (Windows), <code>~/Library/Application Support/Code/User/mcp.json</code> (macOS), <code>~/.config/Code/User/mcp.json</code> (Linux)</summary>
 
 ```json
 {
@@ -184,12 +218,15 @@ args = ["C:\\Users\\<you>\\.project-pulse\\app\\plugin\\mcp\\server.mjs"]
 
 | Where | Change |
 | --- | --- |
-| `%USERPROFILE%\.project-pulse\app` | The app: service, window, mod, MCP server |
-| `%USERPROFILE%\.project-pulse\data` | Your reviews database, settings, logs and a random local access code. Only your Windows account can read it. |
+| `%USERPROFILE%\.project-pulse\app` (`~/.project-pulse/app` on macOS and Linux) | The app: service, window, mod, MCP server |
+| `%USERPROFILE%\.project-pulse\data` (`~/.project-pulse/data`) | Your reviews database, settings, logs and a random local access code. Only your account can read it. |
 | Claude Code user settings | Adds the local marketplace `project-pulse-local` and enables the plugin `project-pulse`. Your settings are backed up to `data\backups\` first. |
 | Codex, Cursor, Gemini CLI, Windsurf, VS Code | Adds the `project-pulse` MCP server to each one installed on your PC. Each config is backed up first; a config it can't read safely is skipped and left untouched. |
-| Startup folder | Starts the Pulse service when you sign in |
-| Start menu | A **Project Pulse** shortcut that opens the window |
+| Startup folder (Windows) | Starts the Pulse service when you sign in |
+| Start menu (Windows) | A **Project Pulse** shortcut that opens the window |
+| `~/Library/LaunchAgents/com.project-pulse.service.plist` (macOS) | Starts the Pulse service when you log in |
+| `~/.config/autostart/project-pulse.desktop` (Linux) | Starts the Pulse service when you log in |
+| `~/.local/share/applications/project-pulse.desktop` (Linux) | A **Project Pulse** app menu entry that opens the window |
 
 It doesn't touch your projects or your Claude Desktop config.
 </details>
@@ -199,7 +236,7 @@ It doesn't touch your projects or your Claude Desktop config.
 | Want to… | Do this |
 | --- | --- |
 | Get a review now | Type `/pulse` in Claude Code. In Codex, Cursor, Gemini CLI, Windsurf or Copilot, ask *"Give me a Project Pulse review"*. Or press **Review now** in the window. |
-| Open the window | `/pulse open`, or the Start menu entry **Project Pulse** |
+| Open the window | `/pulse open`, or **Project Pulse** in the Start menu (Windows) or app menu (Linux) |
 | Turn automatic reviews off for this project | `/pulse off` (and `/pulse on` to turn them back on) |
 | Turn them off everywhere | `/pulse off all` (and `/pulse on all`) |
 | See what's on | `/pulse status` |
@@ -227,15 +264,15 @@ Want a look before you have any reviews? Open `http://127.0.0.1:47821/?demo=1` a
 
 ## Good to know
 
-- **Windows only for now:** the installer, the window and the background service use Windows features.
+- **Windows is the tested platform.** macOS and Linux are new and [not yet tested on real hardware](#macos-and-linux). Under Wayland, Pulse can't tell when you stop typing, so the window opens right away.
 - **Claude Desktop chats have no "finished" signal,** so reviews there are on request.
 - **Some reviews need an open Claude Code session:** reviews written after a session ends use the `claude` CLI's sign-in. Without it, the next open Claude Code session writes them.
 - **The Claude Code mod API is marked early access.** If an update ever changes it, Claude keeps working and Pulse's log says why.
 
 ## Uninstall
 
-Double-click **`Uninstall.cmd`**. It stops Pulse, removes the plugin, the Pulse tools in your other AI tools, the shortcuts and the app. It backs up your settings first.
-- Your review history stays in `%USERPROFILE%\.project-pulse\data` unless you run `uninstall.ps1 -RemoveData`.
+On Windows, double-click **`Uninstall.cmd`**. On macOS and Linux, run `sh ~/.project-pulse/app/uninstall.sh`. It stops Pulse, removes the plugin, the Pulse tools in your other AI tools, the shortcuts or login item, and the app. It backs up your settings first.
+- Your review history stays in `~/.project-pulse/data` unless you run `uninstall.ps1 -RemoveData` (or `uninstall.sh --remove-data`).
 - In Claude Desktop, remove **Project Pulse** under Settings > Extensions.
 
 ## Develop
@@ -245,12 +282,12 @@ service/            Node service: HTTP + live events, SQLite, review prompts, wi
 ui/                 The window (plain HTML/CSS/JS; add ?demo=1 for sample data)
 plugin/             The Claude Code mod (hooks/register.ts), its tests, the MCP server
 desktop-extension/  Manifest for the Claude Desktop extension
-bin/                Hidden launchers used by the shortcuts
-test/               Scenario tests
+bin/                Launchers (.vbs on Windows, .sh on macOS/Linux) and register-agents.mjs
+test/               Scenario tests, plus unit tests for the macOS/Linux switches
 docs/API.md         The local API
 ```
 
-- `npm test` runs the scenario tests: finished vs. ongoing tasks, session end, several projects at once, failures and retries, restarts, privacy and security.
+- `npm test` runs the scenario tests (finished vs. ongoing tasks, session end, several projects at once, failures and retries, restarts, privacy and security) and unit tests for the per-platform window, idle, notification and config-path code.
 - `claude plugin test plugin` runs the mod's tests inside Claude Code's own engine.
 - `claude plugin validate plugin` checks the mod the way Claude Code loads it.
 

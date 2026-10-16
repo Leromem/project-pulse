@@ -3,6 +3,7 @@ import { execFile, spawn } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { onPath } from './config.mjs'
 import { newId, now } from './db.mjs'
 import { log } from './log.mjs'
 import { isGitRepo } from './projects.mjs'
@@ -345,12 +346,12 @@ export function saveFailedReview(store, { projectId, sessionId = null, source, t
 // ---- the Claude Code CLI as a generator (works when `claude` is signed in on this PC)
 
 export function findClaude() {
-  const candidates = [
-    process.env.PROJECT_PULSE_CLAUDE,
-    path.join(os.homedir(), '.local', 'bin', 'claude.exe'),
-    path.join(process.env.APPDATA || '', 'npm', 'claude.cmd'),
-  ].filter(Boolean)
-  return candidates.find(c => fs.existsSync(c)) || null
+  const home = os.homedir()
+  const installed = process.platform === 'win32'
+    ? [path.join(home, '.local', 'bin', 'claude.exe'), path.join(process.env.APPDATA || '', 'npm', 'claude.cmd')]
+    // A service started at login may not have the shell's PATH, so the usual places come first.
+    : [path.join(home, '.local', 'bin', 'claude'), path.join(home, '.claude', 'local', 'claude'), '/opt/homebrew/bin/claude', '/usr/local/bin/claude', onPath('claude')]
+  return [process.env.PROJECT_PULSE_CLAUDE, ...installed].filter(Boolean).find(c => fs.existsSync(c)) || null
 }
 
 export function runCli(prompt, { model = 'sonnet', cwd, timeoutMs = 240_000 } = {}) {

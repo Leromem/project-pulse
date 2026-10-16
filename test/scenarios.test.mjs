@@ -13,8 +13,14 @@ import { fileURLToPath } from 'node:url'
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const RUN = fs.mkdtempSync(path.join(os.tmpdir(), 'pulse-test-'))
 process.env.PROJECT_PULSE_HOME = path.join(RUN, 'home')
-// Project fixtures live outside the temp folder, which Pulse ignores on purpose.
-const FIX = path.join(ROOT, 'test', `.fixtures-${process.pid}`)
+// Project fixtures must sit outside any git repository (this one included) and outside the folders
+// Pulse ignores on purpose (the temp folder, ~/AppData, ~/Library). So the service gets a user home
+// and a temp folder of its own inside RUN, and the fixtures sit beside them.
+const USER = path.join(RUN, 'user')
+fs.mkdirSync(path.join(USER, 'tmp'), { recursive: true })
+for (const k of ['HOME', 'USERPROFILE']) process.env[k] = USER
+for (const k of ['TMPDIR', 'TEMP', 'TMP']) process.env[k] = path.join(USER, 'tmp')
+const FIX = path.join(RUN, 'fixtures')
 const WS = path.join(FIX, 'workspace')
 const ALPHA = path.join(WS, 'alpha')
 const BETA = path.join(WS, 'beta')
