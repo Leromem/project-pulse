@@ -8,11 +8,14 @@
        a local marketplace "project-pulse-local" plus the plugin "project-pulse".
        The plugin also brings the Project Pulse MCP tools to Claude Code.
     4. Builds the Claude Desktop extension (dist\ProjectPulse.mcpb) for you to add in Claude Desktop.
+       It also adds the Pulse MCP tools to other AI tools it finds (Codex CLI, Cursor, Gemini CLI,
+       Windsurf, VS Code Copilot), backing up each config first. Skip that with -NoAgents.
+       -AgentInstructions also adds a short "review finished tasks" note for Codex and Gemini CLI.
     5. Adds a Startup shortcut (service starts at Windows sign-in) and a Start menu shortcut.
     6. Starts the service.
   It does not touch your projects' files or your Claude Desktop config.
 #>
-param([switch]$NoStart, [switch]$SkipClaude)
+param([switch]$NoStart, [switch]$SkipClaude, [switch]$NoAgents, [switch]$AgentInstructions)
 $ErrorActionPreference = 'Stop'
 $Source = $PSScriptRoot
 $PulseHome = Join-Path $env:USERPROFILE '.project-pulse'
@@ -45,7 +48,7 @@ Get-CimInstance Win32_Process -Filter "Name='node.exe'" -ErrorAction SilentlyCon
 # 3. Copy the app
 Step "Copying the app to $App"
 New-Item -ItemType Directory -Force -Path $App, $Data | Out-Null
-foreach ($dir in 'service', 'ui', 'plugin', 'bin', 'desktop-extension', 'docs', 'test') {
+foreach ($dir in 'service', 'ui', 'plugin', 'bin', 'desktop-extension', 'integrations', 'docs', 'test') {
   $from = Join-Path $Source $dir
   if (-not (Test-Path $from)) { continue }
   robocopy $from (Join-Path $App $dir) /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
@@ -140,6 +143,18 @@ try {
 New-Item -ItemType Directory -Force -Path (Join-Path $Source 'dist') | Out-Null
 Copy-Item $mcpb (Join-Path $Source 'dist\ProjectPulse.mcpb') -Force
 Done "Built $mcpb"
+
+# 7b. Other AI tools: register the Pulse MCP server where they are installed
+if ($NoAgents) {
+  Note 'Skipped other AI tools (-NoAgents)'
+} else {
+  Step 'Adding the Pulse tools to other AI tools (Codex, Cursor, Gemini CLI, Windsurf, VS Code)'
+  $agentArgs = @((Join-Path $App 'bin\register-agents.mjs'), '--app', $App, '--node', $node, '--backup', (Join-Path $Data ('backups\agents-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))))
+  if ($AgentInstructions) { $agentArgs += '--instructions' }
+  $ErrorActionPreference = 'Continue'
+  & $node @agentArgs | Out-Host
+  $ErrorActionPreference = 'Stop'
+}
 
 # 8. Shortcuts
 Step 'Adding shortcuts'

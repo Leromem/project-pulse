@@ -35,6 +35,13 @@ if ($claudeCmd) {
   Done "Removed (settings backed up to $backup)"
 }
 
+Step 'Removing the Pulse tools from other AI tools'
+$nodeCmd = Get-Command node -ErrorAction SilentlyContinue
+$agentScript = Join-Path $App 'bin\register-agents.mjs'
+if ($nodeCmd -and (Test-Path $agentScript)) {
+  & $nodeCmd.Source $agentScript --remove --app $App --backup (Join-Path $Data ('backups\uninstall-agents-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))) | Out-Host
+}
+
 Step 'Removing shortcuts'
 Remove-Item (Join-Path ([Environment]::GetFolderPath('Startup')) 'Project Pulse service.lnk') -ErrorAction SilentlyContinue
 Remove-Item (Join-Path ([Environment]::GetFolderPath('Programs')) 'Project Pulse.lnk') -ErrorAction SilentlyContinue
