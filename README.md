@@ -82,46 +82,51 @@ flowchart LR
 
 ## Install
 
-Pulse is built and tested on **Windows 10/11**. **macOS and Linux** support is new: it is covered by unit tests and a simulated install, but nobody has run it on a real Mac or Linux desktop yet ([details](#macos-and-linux)).
+**Pick your system below.** Each box holds one command; paste them one at a time.
 
-### Windows 10/11
+| | Windows 10/11 | macOS | Linux |
+| --- | --- | --- | --- |
+| Where to type | PowerShell or Command Prompt, or no terminal at all | Terminal | Terminal |
+| Install | `.\Install.cmd` (or double-click it) | `sh install.sh` | `sh install.sh` |
+| Uninstall | `Uninstall.cmd` | `sh ~/.project-pulse/app/uninstall.sh` | `sh ~/.project-pulse/app/uninstall.sh` |
+| Status | Tested | New, [not yet tested on real hardware](#macos) | New, [not yet tested on real hardware](#linux) |
 
-**You need:**
+**Every system needs:**
 - [Node.js](https://nodejs.org) 22.5 or newer
 - At least one AI coding tool:
   - [Claude Code](https://claude.com/claude-code), for fully automatic reviews
   - and/or Codex CLI, Cursor, Gemini CLI, Windsurf, VS Code Copilot or Claude Desktop
-- Microsoft Edge (already on Windows) or Chrome
+- Microsoft Edge, Google Chrome or Chromium for the Pulse window. Windows already has Edge.
 
-```bash
+### Windows
+
+**Without a terminal:**
+1. On this page, click **Code > Download ZIP**, then unzip it.
+2. Open the folder and double-click **`Install.cmd`**.
+
+**With PowerShell or Command Prompt:**
+
+```powershell
 git clone https://github.com/Leromem/project-pulse.git
 ```
 
-```bash
+```powershell
 cd project-pulse
 ```
 
-Then double-click **`Install.cmd`**, or run:
-
-```bash
-powershell -ExecutionPolicy Bypass -File install.ps1
+```powershell
+.\Install.cmd
 ```
 
-That's it. Pulse is now on for **every** project, current and future, in every AI tool the installer found. Restart those tools once. In a Claude Code session that's already open, run `/reload-plugins` instead.
+> Windows PowerShell doesn't understand `&&`, so don't chain these into one line. Run them one at a time as shown.
 
-**Optional, for Claude Desktop chats:** double-click `dist\ProjectPulse.mcpb`. Or in Claude Desktop, go to Settings > Extensions > Advanced > Install Extension and pick that file.
+Pulse starts with Windows from now on. To open the window, use **Project Pulse** in the Start menu or `/pulse open` in Claude Code.
 
-**Optional, so Pulse can finish reviews after you close Claude:** run `claude auth login` once in a terminal.
+### macOS
 
-### macOS and Linux
+> **Not yet tested on real hardware.** Every macOS code path has unit tests, but nobody has run Pulse on a real Mac yet. If you try it, please [open an issue](https://github.com/Leromem/project-pulse/issues) and say what worked.
 
-> **Not yet tested on real hardware.** Every macOS and Linux code path has unit tests, the shell scripts pass ShellCheck, and the install and uninstall were run start to finish in a simulated Linux environment. Nobody has run Pulse on a real Mac or Linux desktop yet. If you try it, please [open an issue](https://github.com/Leromem/project-pulse/issues) and say what worked and what didn't.
-
-**You need:**
-- [Node.js](https://nodejs.org) 22.5 or newer
-- At least one AI coding tool (as on Windows, above)
-- Microsoft Edge, Google Chrome or Chromium for the Pulse window. Without one, Pulse opens in your default browser.
-- On Linux, optionally: `xprintidle` so the window waits until you stop typing (X11 only; without it the window opens right away), `notify-send` for notifications, and `zip` or `python3` to build the Claude Desktop extension.
+In **Terminal**:
 
 ```bash
 git clone https://github.com/Leromem/project-pulse.git
@@ -135,31 +140,65 @@ cd project-pulse
 sh install.sh
 ```
 
-It does the same as the Windows installer. The differences:
-- **Start at login:** a LaunchAgent on macOS (`~/Library/LaunchAgents/com.project-pulse.service.plist`), an autostart entry on Linux (`~/.config/autostart/project-pulse.desktop`).
-- **Opening the window:** `/pulse open` in Claude Code, or `sh ~/.project-pulse/app/bin/open-window.sh`. On Linux there's also a **Project Pulse** entry in your app menu.
-- **Notifications:** macOS shows them through `osascript` (they may appear under Script Editor in System Settings > Notifications). Linux uses `notify-send`.
-- **Claude Desktop (macOS):** open `~/.project-pulse/app/dist/ProjectPulse.mcpb`.
+- **Starts at login** through a LaunchAgent: `~/Library/LaunchAgents/com.project-pulse.service.plist`.
+- **To open the window,** run `/pulse open` in Claude Code, or `sh ~/.project-pulse/app/bin/open-window.sh`.
+- **Notifications** come through `osascript`. In System Settings > Notifications they may be listed under Script Editor.
+- **For Claude Desktop,** open `~/.project-pulse/app/dist/ProjectPulse.mcpb`.
 
-Options: `--agent-instructions`, `--no-agents`, `--skip-claude`, `--no-start`.
+### Linux
+
+> **Not yet tested on real hardware.** The install and uninstall were run start to finish in a simulated Linux environment, but not yet on a real desktop. If you try it, please [open an issue](https://github.com/Leromem/project-pulse/issues).
+
+In a terminal:
+
+```bash
+git clone https://github.com/Leromem/project-pulse.git
+```
+
+```bash
+cd project-pulse
+```
+
+```bash
+sh install.sh
+```
+
+- **Starts at login** through `~/.config/autostart/project-pulse.desktop`.
+- **To open the window,** use **Project Pulse** in your app menu, `/pulse open` in Claude Code, or `sh ~/.project-pulse/app/bin/open-window.sh`.
+- **Optional extras:**
+  - `xprintidle` so the window waits until you stop typing. It works on X11 only; without it, the window opens right away.
+  - `notify-send` for notifications.
+  - `zip` or `python3` to build the Claude Desktop extension.
+
+### After installing (every system)
+
+1. **Restart your AI tools once.** In a Claude Code session that's already open, you can run `/reload-plugins` instead.
+2. **Try it.** In Claude Code, finish a task or type `/pulse`. In Codex, Cursor, Gemini CLI, Windsurf or Copilot, ask *"Give me a Project Pulse review of this project."*
+3. **Optional:**
+   - **Preview without real reviews:** open `http://127.0.0.1:47821/?demo=1`.
+   - **Claude Desktop chats:** open `dist/ProjectPulse.mcpb`, or in Claude Desktop go to Settings > Extensions > Advanced > Install Extension.
+   - **Reviews after you close Claude:** run `claude auth login` once in a terminal.
+
+### Installer options
+
+| To… | Windows | macOS / Linux |
+| --- | --- | --- |
+| Get reviews **without asking** in Codex and Gemini CLI | `powershell -ExecutionPolicy Bypass -File install.ps1 -AgentInstructions` | `sh install.sh --agent-instructions` |
+| Leave your other AI tools alone | `powershell -ExecutionPolicy Bypass -File install.ps1 -NoAgents` | `sh install.sh --no-agents` |
+| Skip Claude Code | `… install.ps1 -SkipClaude` | `sh install.sh --skip-claude` |
+| Install without starting Pulse now | `… install.ps1 -NoStart` | `sh install.sh --no-start` |
+
+Running the installer again later updates Pulse. Your reviews, settings and history are kept.
 
 ### Codex, Cursor, Gemini CLI, Windsurf, VS Code
 
-**You don't need to do anything extra.** The installer finds these tools and adds the Pulse tools to each one it finds, backing up every config first. Restart the tool afterwards. In any of them, ask:
+**You don't need to do anything extra.** The installer finds these tools and adds the Pulse tools to each one it finds, backing up every config first. Restart the tool afterwards. Then, in any of them, ask:
 
 > Give me a Project Pulse review of this project.
 
 The assistant reviews what it just did and saves the review to your Pulse window.
 
-**Want reviews without asking?** Run the installer with `-AgentInstructions` (`--agent-instructions` on macOS and Linux):
-
-```bash
-powershell -ExecutionPolicy Bypass -File install.ps1 -AgentInstructions
-```
-
-That adds a short note to `~/.codex/AGENTS.md` and `~/.gemini/GEMINI.md`, telling the assistant to write a Pulse review whenever it finishes a task that changed files. For Cursor, Windsurf or Copilot, paste [`integrations/agent-instructions.md`](integrations/agent-instructions.md) into that tool's rules or custom instructions.
-
-Don't want Pulse in your other tools? Install with `-NoAgents` (`--no-agents` on macOS and Linux).
+**Want reviews without asking?** Use the `-AgentInstructions` / `--agent-instructions` option above. It adds a short note to `~/.codex/AGENTS.md` and `~/.gemini/GEMINI.md`, telling the assistant to write a Pulse review whenever it finishes a task that changed files. For Cursor, Windsurf or Copilot, paste [`integrations/agent-instructions.md`](integrations/agent-instructions.md) into that tool's rules or custom instructions.
 
 ### Any AI tool, by hand
 
@@ -264,16 +303,19 @@ Want a look before you have any reviews? Open `http://127.0.0.1:47821/?demo=1` a
 
 ## Good to know
 
-- **Windows is the tested platform.** macOS and Linux are new and [not yet tested on real hardware](#macos-and-linux). Under Wayland, Pulse can't tell when you stop typing, so the window opens right away.
+- **Windows is the tested platform.** [macOS](#macos) and [Linux](#linux) are new and not yet tested on real hardware. Under Wayland, Pulse can't tell when you stop typing, so the window opens right away.
 - **Claude Desktop chats have no "finished" signal,** so reviews there are on request.
 - **Some reviews need an open Claude Code session:** reviews written after a session ends use the `claude` CLI's sign-in. Without it, the next open Claude Code session writes them.
 - **The Claude Code mod API is marked early access.** If an update ever changes it, Claude keeps working and Pulse's log says why.
 
 ## Uninstall
 
-On Windows, double-click **`Uninstall.cmd`**. On macOS and Linux, run `sh ~/.project-pulse/app/uninstall.sh`. It stops Pulse, removes the plugin, the Pulse tools in your other AI tools, the shortcuts or login item, and the app. It backs up your settings first.
-- Your review history stays in `~/.project-pulse/data` unless you run `uninstall.ps1 -RemoveData` (or `uninstall.sh --remove-data`).
-- In Claude Desktop, remove **Project Pulse** under Settings > Extensions.
+| | Windows | macOS / Linux |
+| --- | --- | --- |
+| Remove Pulse, keep your review history | Double-click **`Uninstall.cmd`** | `sh ~/.project-pulse/app/uninstall.sh` |
+| Remove everything, history included | `powershell -ExecutionPolicy Bypass -File uninstall.ps1 -RemoveData` | `sh ~/.project-pulse/app/uninstall.sh --remove-data` |
+
+It stops Pulse and removes the plugin, the Pulse tools in your other AI tools, the shortcuts or login item, and the app. It backs up your settings first. In Claude Desktop, also remove **Project Pulse** under Settings > Extensions.
 
 ## Develop
 
