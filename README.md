@@ -1,8 +1,10 @@
 # Project Pulse
 
-**Finish a task with Claude Code, and get a 30-second review of what you just built.**
+**Finish a coding task with your AI assistant, and get a 30-second review of what you just built.**
 
-Pulse watches your Claude Code sessions. When a coding task is done, it writes a short, plain-English review in its own window:
+Works with **Claude Code, Codex, Cursor, Gemini CLI, Windsurf, VS Code Copilot and Claude Desktop**.
+
+When a coding task is done, Pulse writes a short, plain-English review in its own window:
 - what you built
 - whether it's really finished, and how we know
 - what's good about it
@@ -11,7 +13,7 @@ Pulse watches your Claude Code sessions. When a coding task is done, it writes a
 
 It remembers every project, so the next review knows what you already fixed, planned or turned down.
 
-It also works with **Codex, Cursor, Gemini CLI, Windsurf, VS Code Copilot and Claude Desktop**, all sharing one window and one memory.
+Every tool shares one window and one memory. In Claude Code, reviews happen automatically. In the others, you ask for one, or add a one-line instruction and they happen automatically too ([see how](#works-with)).
 
 ![Project Pulse in light and dark mode](docs/screenshots/hero.png)
 
@@ -24,7 +26,7 @@ It also works with **Codex, Cursor, Gemini CLI, Windsurf, VS Code Copilot and Cl
 - **You stop guessing whether something is done.** Every review gets a status: Completed, Partially Completed, Needs Testing, Blocked, or No Meaningful Changes. Under it, a "How we know" line gives the evidence, like "No tests were run" or "42 of 42 tests pass".
 - **Problems come with fixes attached.** Each drawback links to the next step that fixes it ("Step 1 fixes this"). Pulse suggests fixes for what you just built before it suggests new features.
 - **It explains in plain words.** Reviews are written so someone who doesn't code, like a client, a teacher or a teammate, can follow them.
-- **It never touches your code.** Pulse only advises. To act on a suggestion, **Discuss in Claude** puts a detailed prompt in your Claude Code box. Nothing is sent until you press Enter.
+- **It never touches your code.** Pulse only advises. To act on a suggestion, **Discuss in Claude** puts a detailed prompt in your Claude Code box. **Copy Prompt** gives you the same prompt for any other assistant. Nothing is sent until you press Enter.
 - **It remembers.** History connects work to concerns to fixes across sessions, and suggestions you finished or dismissed never come back.
 - **It stays out of your way.** The window opens only after you stop typing, and if it's already open it updates quietly.
 
@@ -63,16 +65,17 @@ History shows every review and how each concern led to a fix:
 
 ```mermaid
 flowchart LR
-    A[You and Claude Code<br/>finish a task] --> B{Files changed?<br/>Quiet for 90 s?}
-    B -- yes --> C[Claude writes the review<br/>from the same conversation]
-    B -- you keep working --> A
+    A[Claude Code<br/>finishes a task] -->|"automatic"| C[Your assistant writes the review<br/>from the same conversation]
+    B["Codex, Cursor, Gemini CLI,<br/>Windsurf, Copilot, Claude Desktop"] -->|"you ask, or the<br/>instruction snippet"| C
     C --> D[(Pulse service<br/>on your PC)]
     D --> E[Pulse window<br/>review + next steps]
-    E -- Discuss in Claude --> F[Prompt placed in your<br/>Claude Code box]
+    E -->|"Discuss in Claude or Copy Prompt"| F[A detailed prompt<br/>for your assistant]
 ```
 
-1. **A small Claude Code mod notices when a task is really done.** "Done" means Claude finished a reply that changed files, and you then stayed quiet for about 90 seconds. A successful `git commit` counts as done sooner. Ending the session counts too.
-2. **The review comes from the session itself.** Pulse asks the same conversation a short side question, so the reviewer saw exactly what happened. It uses the Claude sign-in you already have, with no API key.
+1. **Pulse finds out a task is done.**
+   - In Claude Code, a small mod notices on its own. "Done" means Claude finished a reply that changed files, and you then stayed quiet for about 90 seconds. A successful `git commit` counts sooner, and so does ending the session.
+   - In other tools, the assistant calls Pulse's tools when you ask, or by itself when you add the instruction snippet.
+2. **The review comes from the conversation itself,** so the reviewer saw exactly what happened. It uses the sign-in your assistant already has. Pulse never needs its own API key.
 3. **A local service saves it and shows it.** The service runs on `127.0.0.1` and stores everything in SQLite. It opens the Pulse window, a small Edge app window.
 
 ---
@@ -81,7 +84,9 @@ flowchart LR
 
 **You need:**
 - [Node.js](https://nodejs.org) 22.5 or newer
-- [Claude Code](https://claude.com/claude-code)
+- At least one AI coding tool:
+  - [Claude Code](https://claude.com/claude-code), for fully automatic reviews
+  - and/or Codex CLI, Cursor, Gemini CLI, Windsurf, VS Code Copilot or Claude Desktop
 - Microsoft Edge (already on Windows) or Chrome
 
 ```bash
@@ -98,7 +103,7 @@ Then double-click **`Install.cmd`**, or run:
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-That's it. Pulse is now on for **every** Claude Code project, current and future. New sessions pick it up automatically; in a session that's already open, run `/reload-plugins`.
+That's it. Pulse is now on for **every** project, current and future, in every AI tool the installer found. Restart those tools once. In a Claude Code session that's already open, run `/reload-plugins` instead.
 
 **Optional, for Claude Desktop chats:** double-click `dist\ProjectPulse.mcpb`. Or in Claude Desktop, go to Settings > Extensions > Advanced > Install Extension and pick that file.
 
@@ -193,7 +198,7 @@ It doesn't touch your projects or your Claude Desktop config.
 
 | Want to… | Do this |
 | --- | --- |
-| Get a review now | Type `/pulse` in Claude Code, or press **Review now** in the window |
+| Get a review now | Type `/pulse` in Claude Code. In Codex, Cursor, Gemini CLI, Windsurf or Copilot, ask *"Give me a Project Pulse review"*. Or press **Review now** in the window. |
 | Open the window | `/pulse open`, or the Start menu entry **Project Pulse** |
 | Turn automatic reviews off for this project | `/pulse off` (and `/pulse on` to turn them back on) |
 | Turn them off everywhere | `/pulse off all` (and `/pulse on all`) |
